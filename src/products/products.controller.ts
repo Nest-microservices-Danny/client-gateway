@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,8 +10,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { catchError, firstValueFrom } from 'rxjs';
+import { PaginationDto } from 'src/common';
 import { Products_SERVICE } from 'src/config';
 
 @Controller('products')
@@ -23,13 +29,27 @@ export class ProductsController {
   }
 
   @Get()
-  findAllProducts() {
-    return this.productsClient.send({ cmd: 'find_all_products' }, {});
+  findAllProducts(@Query() paginationDTO: PaginationDto) {
+    return this.productsClient.send(
+      { cmd: 'find_all_products' },
+      paginationDTO,
+    );
   }
 
   @Get(':id')
   findOneProduct(@Param('id') id: string) {
-    return { message: `Single product with id ${id}` };
+    return this.productsClient.send({ cmd: 'find_one_product' }, { id }).pipe(
+      catchError((err) => {
+        throw new RpcException(err);
+      }),
+    );
+    // try {
+    //   return await firstValueFrom(
+    //     this.productsClient.send({ cmd: 'find_one_product' }, { id }),
+    //   );
+    // } catch (error) {
+    //   throw new RpcException(error);
+    // }
   }
 
   @Delete(':id')
