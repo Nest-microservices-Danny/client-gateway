@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,11 +8,14 @@ import {
   Patch,
   Post,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError } from 'rxjs';
 import { PaginationDto } from 'src/common';
 import { Products_SERVICE } from 'src/config';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -24,8 +24,11 @@ export class ProductsController {
   ) {}
 
   @Post()
-  createProduct() {
-    return { message: 'Product created' };
+  createProduct(@Body() createProductDTO: CreateProductDto) {
+    return this.productsClient.send(
+      { cmd: 'create_product' },
+      createProductDTO,
+    );
   }
 
   @Get()
@@ -53,14 +56,34 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id') id: string) {
-    return { message: `Product with id ${id} deleted` };
+  deleteProduct(@Param('id', ParseIntPipe) id: number) {
+    return this.productsClient.send(
+      {
+        cmd: 'remove_product',
+      },
+      { id },
+    );
   }
 
   @Patch(':id')
-  updateProduct(@Param('id') id: string, @Body() body: any) {
-    return {
-      message: `Product with id ${id} updated with data ${JSON.stringify(body)}`,
-    };
+  updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProducto: UpdateProductDto,
+  ) {
+    return this.productsClient
+      .send(
+        {
+          cmd: 'update_product',
+        },
+        {
+          id,
+          ...updateProducto,
+        },
+      )
+      .pipe(
+        catchError((err) => {
+          throw new RpcException(err);
+        }),
+      );
   }
 }
