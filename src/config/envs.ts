@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'dotenv/config';
 import * as joi from 'joi';
@@ -8,6 +6,8 @@ interface EnvVars {
   PORT: number;
   PRODUCTS_MICROSERVICE_HOST: string;
   PRODUCTS_MICROSERVICE_PORT: number;
+  ORDERS_MICROSERVICE_HOST: string;
+  ORDERS_MICROSERVICE_PORT: number;
 }
 
 const envSchema = joi
@@ -30,4 +30,6 @@ export const envs = {
   port: envVars.PORT,
   productsMicroserviceHost: envVars.PRODUCTS_MICROSERVICE_HOST,
   productsMicroservicePort: envVars.PRODUCTS_MICROSERVICE_PORT,
+  ordersMicroserviceHost: envVars.ORDERS_MICROSERVICE_HOST,
+  ordersMicroservicePort: envVars.ORDERS_MICROSERVICE_PORT,
 };

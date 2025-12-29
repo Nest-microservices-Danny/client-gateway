@@ -42,7 +42,8 @@ export class ProductsController {
   @Get(':id')
   findOneProduct(@Param('id') id: string) {
     return this.productsClient.send({ cmd: 'find_one_product' }, { id }).pipe(
-      catchError((err) => {
+      catchError((err: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         throw new RpcException(err);
       }),
     );
