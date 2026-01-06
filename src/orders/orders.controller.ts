@@ -6,6 +6,7 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Inject,
   ParseUUIDPipe,
@@ -62,6 +63,25 @@ export class OrdersController {
       });
     } catch (error: any) {
       console.error('Error in OrdersController.findAllByStatus:', error);
+      throw new RpcException({
+        status: error.statusCode,
+        message: error.message,
+      });
+    }
+  }
+
+  @Patch(':id')
+  changeOrderStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() statusDto: OrderStatusDto,
+  ) {
+    try {
+      return this.ordersService.send('changeOrderStatus', {
+        id,
+        status: statusDto.status,
+      });
+    } catch (error: any) {
+      console.error('Error in OrdersController.changeOrderStatus:', error);
       throw new RpcException({
         status: error.statusCode,
         message: error.message,
