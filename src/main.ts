@@ -13,6 +13,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new RpcCustomExceptionFilter());
   await app.listen(envs.port);
+  console.log('Hola Mundo - Primer cambio');
   logger.log(`Application is running on: ${envs.port}`);
 }
 bootstrap();
